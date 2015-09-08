@@ -43,7 +43,7 @@ class Fase():
 
         :param obstaculos:
         """
-        pass
+        self._obstaculos
 
     def adicionar_porco(self, *porcos):
         """
@@ -99,6 +99,9 @@ class Fase():
         :return: objeto do tipo Ponto
         """
         pontos=[]
+        
+        for ator in self>_passaros+self._obstaculos+self.porcos:
+            pontos.append(self._transformar_em_ponto(ator))
 
         return pontos
 
