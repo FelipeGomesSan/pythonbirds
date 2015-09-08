@@ -43,7 +43,7 @@ class Fase():
 
         :param obstaculos:
         """
-        self._obstaculos
+        self._obstaculos.extend(obstaculos)
 
     def adicionar_porco(self, *porcos):
         """
@@ -51,7 +51,7 @@ class Fase():
 
         :param porcos:
         """
-        pass
+        self._porcos.extend(porcos)
 
     def adicionar_passaro(self, *passaros):
         """
@@ -59,7 +59,7 @@ class Fase():
 
         :param passaros:
         """
-        pass
+        self._passaros(selfm *porco)
 
     def status(self):
         """
@@ -100,7 +100,7 @@ class Fase():
         """
         pontos=[]
         
-        for ator in self>_passaros+self._obstaculos+self.porcos:
+        for ator in self._passaros+self._obstaculos+self.porcos:
             pontos.append(self._transformar_em_ponto(ator))
 
         return pontos
