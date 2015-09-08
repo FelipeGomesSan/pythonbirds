@@ -59,7 +59,7 @@ class Fase():
 
         :param passaros:
         """
-        self._passaros(selfm *porco)
+        self._passaros(self, *porco)
 
     def status(self):
         """
