@@ -2,7 +2,6 @@
 
 from __future__ import unicode_literals
 import math
-import pymunk
 
 DESTRUIDO = 'Destruido'
 ATIVO = 'Ativo'
@@ -58,16 +57,11 @@ class Ator():
         :return:
         if self.x-intervalo<=self.x<=outro_ator.x+intervalo:
         """
+        if self.status==ATIVO and outro_ator.status==ATIVO:
+            if self.x-intervalo <= outro_ator.x<=self.x+intervalo and self.y - intervalo <= outro_ator.y <= self.y + intervalo:
+                self.status=DESTRUIDO
+                outro_ator.status=DESTRUIDO
 
-        dx = self.x - outro_ator.x
-        dy = outro_ator.y - self.y
-        distance = math.hypot(dx, dy)
-        if (self._caracter_ativo and self._caracter_ativo) and ((distance <= (self.x<=self.x<=outro_ator.x) or (self.x-intervalo<=self.x<=outro_ator.x+intervalo))):
-            self.status = DESTRUIDO
-            outro_ator.status = DESTRUIDO
-            self._caracter_destruido=self._caracter_destruido
-            outro_ator._caracter_destruido=outro_ator._caracter_destruido
-            return self.status, self._caracter_destruido, outro_ator._caracter_destruido, outro_ator.status
 
 
 class Passaro(Ator):
@@ -89,17 +83,16 @@ class Passaro(Ator):
         self._tempo_de_lancamento = None
         self._angulo_de_lancamento = None  # radianos
 
-
     def foi_lancado(self):
         """
         Método que retorna verdadeira se o pássaro já foi lançado e falso caso contrário
 
         :return: booleano
         """
-        if self._tempo_de_lancamento == None:
-            return True
-        else:
+        if self._tempo_de_lancamento is None:
             return False
+        else:
+            return True
 
     def colidir_com_chao(self):
         """
@@ -107,9 +100,9 @@ class Passaro(Ator):
         o status dos Passaro deve ser alterado para destruido, bem como o seu caracter
 
         """
-        if self.foi_lancado() and self.y<=0:
-            return self._caracter_destruido, self.status==DESTRUIDO
-
+        if self.y<=0:
+         self.status=DESTRUIDO
+        return self.status
 
 
     def calcular_posicao(self):
@@ -126,12 +119,12 @@ class Passaro(Ator):
         :param tempo: tempo de jogo a ser calculada a posição
         :return: posição x, y
         """
-        if self.foi_lancado():
+        if not self.foi_lancado():
            # self.x += math.sin(self._angulo_de_lancamento) * self.velocidade_escalar
            # self.y -= math.cos(self._angulo_de_lancamento) * self.velocidade_escalar
-            self.velocidade_escalar=GRAVIDADE*self._tempo_de_lancamento
-            self.x+=self._x_inicial+self.velocidade_escalar*math.sin(self.teta)*self.delta_t
-            self.y-=self.y_inicial+self.velocidade_escalar*math.cos(self.teta)*self.delta_t-((GRAVIDADE*self.delta_t^2)/2)
+            self.velocidade_escalar=GRAVIDADE*self.delta_t
+            self.x=self._x_inicial+self.velocidade_escalar*math.sin(self.delta_t)*self._tempo_de_lancamento
+            self.y=self.y_inicial+self.velocidade_escalar*math.cos(self.delta_t)*self._tempo_de_lancamento-((GRAVIDADE*self.delta_t^2)/2)
             return self.x,self.y
         else:
             return self._x_inicial, self._y_inicial
@@ -147,30 +140,28 @@ class Passaro(Ator):
         :param tempo_de_lancamento:
         :return:
         """
-        if self.foi_lancado() and self.status == ATIVO:
-            self._angulo_de_lancamento=(math.pi*angulo/180)
-            self.delta_t = self.T_final - self.T_inicial
-            return self.teta, self.delta_t,
-
-
-class PassaroVermelho(Passaro):
-    DESTRUIDO = 'V'
-    ATIVO = 'v'
-    velocidade_escalar = 20
+        self._tempo_de_lancamento = tempo_de_lancamento
+        self._angulo_de_lancamento=math.radians(angulo)
+        return self._angulo_de_lancamento, self._tempo_de_lancamento
 
 
 class PassaroAmarelo(Passaro):
-    DESTRUIDO = 'A'
-    ATIVO = 'a'
+    _caracter_ativo = 'A'
+    _caracter_destruido = 'a'
     velocidade_escalar = 30
 
+
+class PassaroVermelho(Passaro):
+    _caracter_ativo = 'V'
+    _caracter_destruido = 'v'
+    velocidade_escalar = 20
 
 class Obstaculo(Ator):
     _caracter_ativo = 'O'
 
 
 class Porco(Ator):
-    _caracter_ativo = '@'
-    _caracter_destruido = '+'
+        _caracter_ativo = '@'
+        _caracter_destruido = '+'
 
 
