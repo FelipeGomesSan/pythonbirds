@@ -1,7 +1,14 @@
 # -*- coding: utf-8 -*-
 from itertools import chain
-from atores import ATIVO
+from os import path
+import sys
 
+project_dir = path.dirname(__file__)
+project_dir = path.join('..')
+sys.path.append(project_dir)
+
+from atores import Ator, DESTRUIDO, ATIVO, Obstaculo, Porco, PassaroAmarelo, PassaroVermelho
+ator=__import__('atores')
 
 VITORIA = 'VITORIA'
 DERROTA = 'DERROTA'
@@ -43,7 +50,7 @@ class Fase():
 
         :param obstaculos:
         """
-        self._obstaculos.extend(obstaculos)
+        return self._obstaculos.extend(obstaculos, )
 
     def adicionar_porco(self, *porcos):
         """
@@ -51,7 +58,7 @@ class Fase():
 
         :param porcos:
         """
-        self._porcos.extend(porcos)
+        return self._porcos.extend(porcos, )
 
     def adicionar_passaro(self, *passaros):
         """
@@ -59,9 +66,9 @@ class Fase():
 
         :param passaros:
         """
-        self._passaros(self, *porco)
+        return self._passaros.extend(passaros, )
 
-    def status(self):
+    def status(self, ator):
         """
         Método que indica com mensagem o status do jogo
 
@@ -73,9 +80,15 @@ class Fase():
 
         :return:
         """
-        return EM_ANDAMENTO
+        if ((ator._caracter_destruido) in (self._porcos)):
+            return (VITORIA,)
+        elif (ator._caracter_ativo in any (self._passaros+self._porcos)):
+            return (EM_ANDAMENTO)
+        elif (ator._caracter_destruido in all (self._passaros)) and (ator._caracter_ativo in any(self._porcos)):
+            return DERROTA
 
-    def lancar(self, angulo, tempo):
+
+    def lancar(self, ator, angulo, tempo):
         """
         Método que executa lógica de lançamento.
 
@@ -86,7 +99,8 @@ class Fase():
         :param angulo: ângulo de lançamento
         :param tempo: Tempo de lançamento
         """
-        pass
+        if (ator._caracter_ativo) and (ator.foi_lancado(True)) in any (self._passaros):
+            return ator._passaros.lancar(self,angulo,tempo)
 
 
     def calcular_pontos(self, tempo):
@@ -100,9 +114,8 @@ class Fase():
         """
         pontos=[]
         
-        for ator in self._passaros+self._obstaculos+self.porcos:
+        for ator in (self._passaros+self._obstaculos+self._porcos):
             pontos.append(self._transformar_em_ponto(ator))
-
         return pontos
 
     def _transformar_em_ponto(self, ator):
