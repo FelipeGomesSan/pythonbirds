@@ -26,12 +26,9 @@ class Ator():
         self.status = ATIVO
 
     def caracter(self):
-            if self.status == ATIVO:
-                self._caracter_ativo
-                return self._caracter_ativo
-            else:
-                self._caracter_destruido
-                return self._caracter_destruido
+        if self.status == ATIVO:
+            return self._caracter_ativo
+        return self._caracter_destruido
 
     def calcular_posicao(self, tempo):
         """
@@ -113,7 +110,7 @@ class Passaro(Ator):
         :param tempo: tempo de jogo a ser calculada a posição
         :return: posição x, y
         """
-        if not self.foi_lancado():
+        if self.foi_lancado():
             #self.x += math.sin(self._angulo_de_lancamento) * self.velocidade_escalar
             #self.y -= math.cos(self._angulo_de_lancamento) * self.velocidade_escalar
             #self.velocidade_escalar=GRAVIDADE*self._tempo_de_lancamento
@@ -155,5 +152,3 @@ class Obstaculo(Ator):
 class Porco(Ator):
     _caracter_ativo = '@'
     _caracter_destruido = '+'
-
-
