@@ -7,7 +7,7 @@ project_dir = path.dirname(__file__)
 project_dir = path.join('..')
 sys.path.append(project_dir)
 
-from atores import Ator, DESTRUIDO, ATIVO, Obstaculo, Porco, PassaroAmarelo, PassaroVermelho
+from atores import *
 ator=__import__('atores')
 
 VITORIA = 'VITORIA'
@@ -50,7 +50,7 @@ class Fase():
 
         :param obstaculos:
         """
-        return self._obstaculos.extend(obstaculos, )
+        return self._obstaculos.extend(obstaculos)
 
     def adicionar_porco(self, *porcos):
         """
@@ -58,7 +58,7 @@ class Fase():
 
         :param porcos:
         """
-        return self._porcos.extend(porcos, )
+        return self._porcos.extend(porcos)
 
     def adicionar_passaro(self, *passaros):
         """
@@ -66,9 +66,9 @@ class Fase():
 
         :param passaros:
         """
-        return self._passaros.extend(passaros, )
+        return self._passaros.extend(passaros)
 
-    def status(self, ator):
+    def status(self):
         """
         Método que indica com mensagem o status do jogo
 
@@ -80,15 +80,29 @@ class Fase():
 
         :return:
         """
-        if ((ator._caracter_destruido) in (self._porcos)):
-            return (VITORIA,)
-        elif (ator._caracter_ativo in any (self._passaros+self._porcos)):
-            return (EM_ANDAMENTO)
-        elif (ator._caracter_destruido in all (self._passaros)) and (ator._caracter_ativo in any(self._porcos)):
+        if not self._checar_porcos() or self._checar_passaros():
+            return VITORIA
+        elif self._checar_passaros()and self._checar_porcos():
+            return EM_ANDAMENTO
+        elif not self._checar_passaros() or self._checar_porcos():
             return DERROTA
 
 
-    def lancar(self, ator, angulo, tempo):
+
+    def _checar_atores(self, lista_atores):
+        for ator in lista_atores:
+            if ator.caracter:
+                return True
+        return False
+
+    def _checar_porcos(self):
+        return self._checar_atores(self._porcos)
+
+    def _checar_passaros(self):
+        return self._checar_atores(self._passaros)
+
+
+    def lancar(self,angulo,tempo):
         """
         Método que executa lógica de lançamento.
 
@@ -99,8 +113,11 @@ class Fase():
         :param angulo: ângulo de lançamento
         :param tempo: Tempo de lançamento
         """
-        if (ator._caracter_ativo) and (ator.foi_lancado(True)) in any (self._passaros):
-            return ator._passaros.lancar(self,angulo,tempo)
+        #if self._checar_passaros() in any(self._passaros):
+        #    return ator._passaros.lancar(self,angulo,tempo)
+        for passaro in self._passaros:
+            if not passaro.foi_lancado():
+               return passaro.lancar(angulo, tempo)
 
 
     def calcular_pontos(self, tempo):
@@ -113,11 +130,20 @@ class Fase():
         :return: objeto do tipo Ponto
         """
         pontos=[]
-        
         for ator in (self._passaros+self._obstaculos+self._porcos):
             pontos.append(self._transformar_em_ponto(ator))
         return pontos
 
+    def ponto_passaro(self, passaro,tempo):
+        passaro.calcular_posicao(tempo)
+        for ator in chain(self._obstaculos, self._porcos):
+            if passaro.status():
+                passaro.colidir(ator, self.intervalo_de_colisao)
+                passaro.colidir_com_chao()
+                self._transformar_em_ponto(passaro)
+            else:
+                break
+        return self._transformar_em_ponto(passaro)
+
     def _transformar_em_ponto(self, ator):
         return Ponto(ator.x, ator.y, ator.caracter())
-
